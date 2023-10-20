@@ -100,6 +100,7 @@ export const KeycloakProvider: FC<IKeycloakConfiguration> = (props) => {
   const handleLogout = useCallback(
     async (everywhere?: boolean) => {
       if (!savedTokens) throw new Error('Not logged in.');
+      clearTimeout(refreshHandle);
       if (everywhere) {
         AuthSession.revokeAsync(
           { token: savedTokens?.accessToken!, ...config },
