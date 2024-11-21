@@ -30,8 +30,10 @@ export interface IKeycloakConfiguration extends Partial<AuthRequestConfig> {
 export const KeycloakProvider: FC<IKeycloakConfiguration> = (props) => {
   const discovery = useAutoDiscovery(getRealmURL(props));
   const redirectUri = AuthSession.makeRedirectUri({
-    native: `${props.scheme ?? 'exp'}://${props.nativeRedirectPath ?? NATIVE_REDIRECT_PATH}`,
-    useProxy: !props.scheme,
+    native: `${props.scheme ?? 'exp'}://${
+      props.nativeRedirectPath ?? NATIVE_REDIRECT_PATH
+    }`,
+    scheme: props.scheme ?? 'exp',
   });
   const [
     savedTokens,
@@ -114,20 +116,19 @@ export const KeycloakProvider: FC<IKeycloakConfiguration> = (props) => {
     },
     [discovery, savedTokens],
   );
-  
+
   const refreshCallBackRef = useRef(handleTokenRefresh);
 
   useEffect(() => {
     refreshCallBackRef.current = handleTokenRefresh;
-  }, [savedTokens])
+  }, [savedTokens]);
 
   useEffect(() => {
     if (hydrated) refreshCallBackRef.current();
   }, [hydrated]);
 
   useEffect(() => {
-    handleTokenExchange({ response, discovery, config })
-    .then((res) => {
+    handleTokenExchange({ response, discovery, config }).then((res) => {
       if (res !== null) updateState(res.tokens);
     });
   }, [response]);
